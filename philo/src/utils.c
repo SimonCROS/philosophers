@@ -6,11 +6,43 @@
 /*   By: scros <scros@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/30 22:47:26 by scros             #+#    #+#             */
-/*   Updated: 2021/07/30 23:25:31 by scros            ###   ########lyon.fr   */
+/*   Updated: 2021/08/01 14:56:20 by scros            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
+
+void	ft_bzero(void *s, size_t n)
+{
+	size_t	cur;
+
+	while (n)
+	{
+		if (n >= sizeof(long))
+		{
+			cur = sizeof(long);
+			*((long *)s) = 0;
+		}
+		else
+		{
+			cur = 1;
+			*((char *)s) = 0;
+		}
+		s += cur;
+		n -= cur;
+	}
+}
+
+void	*ft_calloc(size_t count, size_t size)
+{
+	void	*pointer;
+
+	pointer = malloc(count * size);
+	if (!pointer)
+		return (NULL);
+	ft_bzero(pointer, count * size);
+	return (pointer);
+}
 
 int	pint(char *str, int *result, int min)
 {

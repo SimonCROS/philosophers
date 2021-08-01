@@ -6,7 +6,7 @@
 /*   By: scros <scros@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/30 22:23:18 by scros             #+#    #+#             */
-/*   Updated: 2021/07/30 23:46:11 by scros            ###   ########lyon.fr   */
+/*   Updated: 2021/08/01 15:00:35 by scros            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,11 @@
 # include <stdlib.h>
 # include <pthread.h>
 # include <sys/time.h>
+
+/*** Defines ******************************************************************/
+
+# define TRUE 1
+# define FALSE 0
 
 /*** Types ********************************************************************/
 
@@ -33,7 +38,7 @@ struct s_philosophers_data
 	int				time_to_die;
 	int				time_to_eat;
 	int				time_to_sleep;
-	int				max_eat;
+	int				stop_after;
 	pthread_mutex_t	speek;
 	pthread_mutex_t	*forks;
 	t_philosopher	*philosophers;
@@ -47,9 +52,13 @@ struct s_philosopher
 	int				eat_count;
 };
 
+int		start(t_philosophers_data *data);
+
 /*** Utils ********************************************************************/
 
-int			pint(char *str, int *result, int min);
-ssize_t		ft_putendl_fd(char *s, int fd);
+int		pint(char *str, int *result, int min);
+ssize_t	ft_putendl_fd(char *s, int fd);
+void	*ft_calloc(size_t count, size_t size);
+void	ft_bzero(void *s, size_t n);
 
 #endif
