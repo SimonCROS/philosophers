@@ -6,13 +6,13 @@
 /*   By: scros <scros@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/30 22:23:33 by scros             #+#    #+#             */
-/*   Updated: 2021/08/01 16:10:09 by scros            ###   ########lyon.fr   */
+/*   Updated: 2021/08/01 23:37:09 by scros            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
-static int	quit_philo(t_philosophers_data *data, int destroy_mutex)
+static int	quit_philo(t_program_data *data, int destroy_mutex)
 {
 	int	i;
 
@@ -37,14 +37,14 @@ static int	show_help(void)
 	return (EXIT_FAILURE);
 }
 
-static int	show_error(t_philosophers_data *data, int destroy_mutex)
+static int	show_error(t_program_data *data, int destroy_mutex)
 {
 	quit_philo(data, destroy_mutex);
 	ft_putendl_fd("\033[31mAn internal error occurred.\033[0m", 2);
 	return (EXIT_FAILURE);
 }
 
-static void	init_philosophers(t_philosophers_data *data)
+static void	init_philosophers(t_program_data *data)
 {
 	int				i;
 	t_philosopher	*philosopher;
@@ -53,27 +53,41 @@ static void	init_philosophers(t_philosophers_data *data)
 	while (i < data->nb_philos)
 	{
 		philosopher = &data->philosophers[i];
+		philosopher->id = i + 1;
+		philosopher->program = data;
+		philosopher->last_meal = data->start;
 		philosopher->left_fork = &data->forks[i];
 		i++;
 		philosopher->right_fork = &data->forks[i % data->nb_philos];
 	}
 }
 
-int	start(t_philosophers_data *data)
+int	start(t_program_data *data)
 {
+	int				i;
+	t_philosopher	*philosopher;
+
+	data->died = FALSE;
+	data->start = get_time_millis();
 	init_philosophers(data);
-	for (int i = 0; i < data->nb_philos; i++)
+	i = 0;
+	while (i < data->nb_philos && !data->died)
 	{
-		printf("%p -> %p = ", data->philosophers[i].left_fork, data->philosophers[i].right_fork);
+		philosopher = &data->philosophers[i];
+		if (pthread_create(&philosopher->thread, NULL, worker, philosopher))
+			data->died = TRUE; // KILL ALL AND RETURN FALSE
+		i++;
 	}
-	printf("%p\n", data->philosophers[0].left_fork);
+	while (1)
+	{
+	}
 	return (TRUE);
 }
 
 int	main(int argc, char *argv[])
 {
-	t_philosophers_data	data;
-	int					i;
+	t_program_data	data;
+	int				i;
 
 	if (argc != 5 && argc != 6)
 		return (show_help());

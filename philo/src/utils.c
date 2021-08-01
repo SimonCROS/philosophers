@@ -6,11 +6,19 @@
 /*   By: scros <scros@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/30 22:47:26 by scros             #+#    #+#             */
-/*   Updated: 2021/08/01 14:56:20 by scros            ###   ########lyon.fr   */
+/*   Updated: 2021/08/01 23:06:46 by scros            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
+
+long long	get_time_millis(void)
+{
+	struct timeval	time;
+
+	gettimeofday(&time, NULL);
+	return (time.tv_sec * 1000LL + time.tv_usec / 1000);
+}
 
 void	ft_bzero(void *s, size_t n)
 {
