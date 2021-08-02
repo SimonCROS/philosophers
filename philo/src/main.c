@@ -6,7 +6,7 @@
 /*   By: scros <scros@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/30 22:23:33 by scros             #+#    #+#             */
-/*   Updated: 2021/08/01 23:37:09 by scros            ###   ########lyon.fr   */
+/*   Updated: 2021/08/02 12:32:42 by scros            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,19 +67,36 @@ int	start(t_program_data *data)
 	int				i;
 	t_philosopher	*philosopher;
 
-	data->died = FALSE;
+	data->stop = FALSE;
 	data->start = get_time_millis();
 	init_philosophers(data);
 	i = 0;
-	while (i < data->nb_philos && !data->died)
+	while (i < data->nb_philos && !data->stop)
 	{
 		philosopher = &data->philosophers[i];
 		if (pthread_create(&philosopher->thread, NULL, worker, philosopher))
-			data->died = TRUE; // KILL ALL AND RETURN FALSE
+			data->stop = TRUE; // KILL ALL AND RETURN FALSE
 		i++;
 	}
-	while (1)
+	long long	time;
+
+	while (!data->stop)
 	{
+		pthread_mutex_lock(&data->speek);
+		i = 0;
+		time = get_time_millis();
+		while (i < data->nb_philos && !data->stop)
+		{
+			philosopher = &data->philosophers[i];
+			if (time - philosopher->last_meal > data->time_to_die)
+			{
+				data->stop = TRUE;
+				printf("%lld %d died\n", time - data->start, philosopher->id);
+				pthread_mutex_unlock(&data->speek);
+			}
+			i++;
+		}
+		pthread_mutex_unlock(&data->speek);
 	}
 	return (TRUE);
 }

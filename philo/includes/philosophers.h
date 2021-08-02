@@ -6,7 +6,7 @@
 /*   By: scros <scros@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/30 22:23:18 by scros             #+#    #+#             */
-/*   Updated: 2021/08/01 23:04:09 by scros            ###   ########lyon.fr   */
+/*   Updated: 2021/08/02 12:26:45 by scros            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ struct s_program_data
 	int				time_to_eat;
 	int				time_to_sleep;
 	int				stop_after;
-	int				died;
+	int				stop;
 	long long		start;
 	pthread_mutex_t	speek;
 	pthread_mutex_t	*forks;
@@ -63,7 +63,6 @@ enum e_action
 	SLEEP,
 	THINK,
 	TAKE_FORK,
-	DIE,
 };
 
 int			start(t_program_data *data);
