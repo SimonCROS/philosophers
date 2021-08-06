@@ -14,12 +14,10 @@
 
 static int	print_action(t_philosopher *philo, t_action action)
 {
-	long long	time;
 	long long	diff;
 
 	pthread_mutex_lock(&philo->program->speek);
-	time = get_time_millis();
-	diff = time - philo->program->start;
+	diff = philo->program->current - philo->program->start;
 	if (philo->program->stop)
 	{
 		pthread_mutex_unlock(&philo->program->speek);
@@ -29,7 +27,7 @@ static int	print_action(t_philosopher *philo, t_action action)
 		printf("%lld %d has taken a fork\n", diff, philo->id);
 	else if (action == EAT)
 	{
-		philo->last_meal = time;
+		philo->last_meal = philo->program->current;
 		printf("%lld %d is eating\n", diff, philo->id);
 	}
 	else if (action == SLEEP)
@@ -50,7 +48,8 @@ void	*worker(void *data)
 	stop = 0;
 	philo = (t_philosopher *)data;
 	if (philo->id % 2 == 0)
-		usleep(philo->program->time_to_eat * 1000);
+		while ( philo->program->time_to_eat * 1000)
+			;
 	while (!stop)
 	{
 		pthread_mutex_lock(philo->left_fork);

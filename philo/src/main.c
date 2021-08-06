@@ -84,14 +84,14 @@ int	start(t_program_data *data)
 	{
 		pthread_mutex_lock(&data->speek);
 		i = 0;
-		time = get_time_millis();
+		data->current = get_time_millis();
 		while (i < data->nb_philos && !data->stop)
 		{
 			philosopher = &data->philosophers[i];
-			if (time - philosopher->last_meal > data->time_to_die)
+			if (data->current - philosopher->last_meal > data->time_to_die)
 			{
 				data->stop = TRUE;
-				printf("%lld %d died\n", time - data->start, philosopher->id);
+				printf("%lld %d died\n", data->current - data->start, philosopher->id);
 				pthread_mutex_unlock(&data->speek);
 			}
 			i++;

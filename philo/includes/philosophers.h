@@ -41,6 +41,7 @@ struct s_program_data
 	int				stop_after;
 	int				stop;
 	long long		start;
+	long long		current;
 	pthread_mutex_t	speek;
 	pthread_mutex_t	*forks;
 	t_philosopher	*philosophers;
