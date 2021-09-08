@@ -43,6 +43,17 @@ static int	action(t_philosopher *this, t_action action)
 	return (TRUE);
 }
 
+void	custom_usleep(long long microseconds)
+{
+	long long	i;
+	long long	start;
+
+	i = 0;
+	start = get_time_millis();
+	while (get_time_millis() - start < microseconds / 1000)
+		usleep(100);
+}
+
 void	*worker(void *data)
 {
 	t_philosopher	*philo;
@@ -51,7 +62,7 @@ void	*worker(void *data)
 	stop = 0;
 	philo = (t_philosopher *)data;
 	if (philo->id % 2 == 0)
-		usleep(philo->program->time_to_eat * 1000);
+		custom_usleep(philo->program->time_to_eat * 1000);
 	while (!stop)
 	{
 		pthread_mutex_lock(philo->left_fork);
@@ -59,11 +70,11 @@ void	*worker(void *data)
 		pthread_mutex_lock(philo->right_fork);
 		stop = !action(philo, TAKE_FORK);
 		stop = !action(philo, EAT);
-		usleep(philo->program->time_to_eat * 1000);
+		custom_usleep(philo->program->time_to_eat * 1000);
 		pthread_mutex_unlock(philo->left_fork);
 		pthread_mutex_unlock(philo->right_fork);
 		stop = !action(philo, SLEEP);
-		usleep(philo->program->time_to_sleep * 1000);
+		custom_usleep(philo->program->time_to_sleep * 1000);
 		stop = !action(philo, THINK);
 	}
 	return (NULL);
