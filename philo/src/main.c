@@ -12,38 +12,6 @@
 
 #include "philosophers.h"
 
-static int	quit_philo(t_program_data *data, int destroy_mutex)
-{
-	int	i;
-
-	if (destroy_mutex)
-	{
-		i = 0;
-		pthread_mutex_destroy(&data->speek);
-		while (i < data->nb_philos)
-			pthread_mutex_destroy(&data->forks[i++]);
-	}
-	free(data->forks);
-	data->forks = NULL;
-	free(data->philosophers);
-	data->philosophers = NULL;
-	return (EXIT_SUCCESS);
-}
-
-static int	show_help(void)
-{
-	ft_putendl_fd("\033[1;31mUsage :\n\033[1;30m./philo <nb_philos> \
-<time_to_die> <time_to_eat> <time_to_sleep> [stop_after_eat]\033[0m", 2);
-	return (EXIT_FAILURE);
-}
-
-static int	show_error(t_program_data *data, int destroy_mutex)
-{
-	quit_philo(data, destroy_mutex);
-	ft_putendl_fd("\033[31mAn internal error occurred.\033[0m", 2);
-	return (EXIT_FAILURE);
-}
-
 static void	init_philosophers(t_program_data *data)
 {
 	int				i;
@@ -69,18 +37,24 @@ int	start(t_program_data *data)
 
 	data->stop = FALSE;
 	data->start = get_time_millis();
+	data->current = data->start;
 	init_philosophers(data);
 	i = 0;
-	while (i < data->nb_philos && !data->stop)
+	while (i < data->nb_philos)
 	{
 		philosopher = &data->philosophers[i];
 		if (pthread_create(&philosopher->thread, NULL, worker, philosopher))
-			data->stop = TRUE; // KILL ALL AND RETURN FALSE
+		{
+			pthread_mutex_lock(&data->speek);
+			data->stop = TRUE;
+			pthread_mutex_unlock(&data->speek);
+			return (FALSE);
+		}
+		else
+			pthread_detach(philosopher->thread);
 		i++;
 	}
-	long long	time;
-
-	while (!data->stop)
+	while (1)
 	{
 		pthread_mutex_lock(&data->speek);
 		i = 0;
@@ -91,8 +65,9 @@ int	start(t_program_data *data)
 			if (data->current - philosopher->last_meal > data->time_to_die)
 			{
 				data->stop = TRUE;
-				printf("%lld %d died\n", data->current - data->start, philosopher->id);
+				print_action(philosopher, "died");
 				pthread_mutex_unlock(&data->speek);
+				return (TRUE);
 			}
 			i++;
 		}

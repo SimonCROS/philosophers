@@ -77,4 +77,12 @@ void		*ft_calloc(size_t count, size_t size);
 void		ft_bzero(void *s, size_t n);
 long long	get_time_millis(void);
 
+void		print_action(t_philosopher *this, char *message);
+
+/*** Exit *********************************************************************/
+
+int			quit_philo(t_program_data *data, int destroy_mutex);
+int			show_help(void);
+int			show_error(t_program_data *data, int destroy_mutex);
+
 #endif

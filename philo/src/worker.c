@@ -12,31 +12,34 @@
 
 #include "philosophers.h"
 
-static int	print_action(t_philosopher *philo, t_action action)
+void	print_action(t_philosopher *this, char *message)
 {
 	long long	diff;
 
-	pthread_mutex_lock(&philo->program->speek);
-	diff = philo->program->current - philo->program->start;
-	if (philo->program->stop)
+	diff = this->program->current - this->program->start;
+	printf("%lld %d %s\n", diff, this->id, message);
+}
+
+static int	action(t_philosopher *this, t_action action)
+{
+	pthread_mutex_lock(&this->program->speek);
+	if (this->program->stop)
 	{
-		pthread_mutex_unlock(&philo->program->speek);
+		pthread_mutex_unlock(&this->program->speek);
 		return (FALSE);
 	}
 	if (action == TAKE_FORK)
-		printf("%lld %d has taken a fork\n", diff, philo->id);
+		print_action(this, "has taken a fork");
+	else if (action == SLEEP)
+		print_action(this, "is sleeping");
+	else if (action == THINK)
+		print_action(this, "is thinking");
 	else if (action == EAT)
 	{
-		philo->last_meal = philo->program->current;
-		printf("%lld %d is eating\n", diff, philo->id);
+		print_action(this, "is eating");
+		this->last_meal = this->program->current;
 	}
-	else if (action == SLEEP)
-	{
-		printf("%lld %d is sleeping\n", diff, philo->id);
-	}
-	else if (action == THINK)
-		printf("%lld %d is thinking\n", diff, philo->id);
-	pthread_mutex_unlock(&philo->program->speek);
+	pthread_mutex_unlock(&this->program->speek);
 	return (TRUE);
 }
 
@@ -48,21 +51,20 @@ void	*worker(void *data)
 	stop = 0;
 	philo = (t_philosopher *)data;
 	if (philo->id % 2 == 0)
-		while ( philo->program->time_to_eat * 1000)
-			;
+		usleep(philo->program->time_to_eat * 1000);
 	while (!stop)
 	{
 		pthread_mutex_lock(philo->left_fork);
-		stop = !print_action(philo, TAKE_FORK);
+		stop = !action(philo, TAKE_FORK);
 		pthread_mutex_lock(philo->right_fork);
-		stop = !print_action(philo, TAKE_FORK);
-		stop = !print_action(philo, EAT);
-		usleep(philo->program->time_to_sleep * 1000);
+		stop = !action(philo, TAKE_FORK);
+		stop = !action(philo, EAT);
+		usleep(philo->program->time_to_eat * 1000);
 		pthread_mutex_unlock(philo->left_fork);
 		pthread_mutex_unlock(philo->right_fork);
-		stop = !print_action(philo, SLEEP);
+		stop = !action(philo, SLEEP);
 		usleep(philo->program->time_to_sleep * 1000);
-		stop = !print_action(philo, THINK);
+		stop = !action(philo, THINK);
 	}
 	return (NULL);
 }
