@@ -31,7 +31,10 @@ static int	action(t_philosopher *this, t_action action)
 	if (action == TAKE_FORK)
 		print_action(this, "has taken a fork");
 	else if (action == SLEEP)
+	{
 		print_action(this, "is sleeping");
+		this->eat_count++;
+	}	
 	else if (action == THINK)
 		print_action(this, "is thinking");
 	else if (action == EAT)

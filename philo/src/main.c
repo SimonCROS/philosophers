@@ -33,6 +33,7 @@ static void	init_philosophers(t_program_data *data)
 int	start(t_program_data *data)
 {
 	int				i;
+	int				finished;
 	t_philosopher	*philosopher;
 
 	data->stop = FALSE;
@@ -58,10 +59,13 @@ int	start(t_program_data *data)
 	{
 		pthread_mutex_lock(&data->speek);
 		i = 0;
+		finished = data->stop_after != -1;
 		data->current = get_time_millis();
 		while (i < data->nb_philos && !data->stop)
 		{
 			philosopher = &data->philosophers[i];
+			if (philosopher->eat_count < data->stop_after)
+				finished = 0;
 			if (data->current - philosopher->last_meal > data->time_to_die)
 			{
 				data->stop = TRUE;
@@ -70,6 +74,12 @@ int	start(t_program_data *data)
 				return (TRUE);
 			}
 			i++;
+		}
+		if (finished)
+		{
+			data->stop = TRUE;
+			pthread_mutex_unlock(&data->speek);
+			return (TRUE);
 		}
 		pthread_mutex_unlock(&data->speek);
 	}
@@ -83,6 +93,7 @@ int	main(int argc, char *argv[])
 
 	if (argc != 5 && argc != 6)
 		return (show_help());
+	data.stop_after = -1;
 	if (!(pint(argv[1], &data.nb_philos, 0)
 			* pint(argv[2], &data.time_to_die, 0)
 			* pint(argv[3], &data.time_to_eat, 0)

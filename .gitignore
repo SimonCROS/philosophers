@@ -1,6 +1,7 @@
 ## Philosophers
 philo/philo
 philo_bonus/philo_bonus
+.vscode
 
 ## Mlx related
 Makefile.gen
