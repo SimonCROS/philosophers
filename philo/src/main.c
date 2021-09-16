@@ -30,10 +30,52 @@ static void	init_philosophers(t_program_data *data)
 	}
 }
 
-int	start(t_program_data *data)
+static int	check_stop(t_program_data *data)
 {
 	int				i;
 	int				finished;
+	t_philosopher	*philosopher;
+
+	i = 0;
+	finished = data->stop_after != -1;
+	data->current = get_time_millis();
+	while (i < data->nb_philos && !data->stop)
+	{
+		philosopher = &data->philosophers[i];
+		if (philosopher->eat_count < data->stop_after)
+			finished = 0;
+		if (data->current - philosopher->last_meal > data->time_to_die)
+		{
+			data->stop = TRUE;
+			print_action(philosopher, "died");
+			return (TRUE);
+		}
+		i++;
+	}
+	if (finished)
+	{
+		return (TRUE);
+	}
+	return (FALSE);
+}
+
+static void	wait_end(t_program_data *data)
+{
+	while (1)
+	{
+		pthread_mutex_lock(&data->speek);
+		if (check_stop(data))
+		{
+			data->stop = TRUE;
+			break ;
+		}
+		pthread_mutex_unlock(&data->speek);
+	}
+}
+
+static int	start(t_program_data *data)
+{
+	int				i;
 	t_philosopher	*philosopher;
 
 	data->stop = FALSE;
@@ -55,34 +97,7 @@ int	start(t_program_data *data)
 			pthread_detach(philosopher->thread);
 		i++;
 	}
-	while (1)
-	{
-		pthread_mutex_lock(&data->speek);
-		i = 0;
-		finished = data->stop_after != -1;
-		data->current = get_time_millis();
-		while (i < data->nb_philos && !data->stop)
-		{
-			philosopher = &data->philosophers[i];
-			if (philosopher->eat_count < data->stop_after)
-				finished = 0;
-			if (data->current - philosopher->last_meal > data->time_to_die)
-			{
-				data->stop = TRUE;
-				print_action(philosopher, "died");
-				pthread_mutex_unlock(&data->speek);
-				return (TRUE);
-			}
-			i++;
-		}
-		if (finished)
-		{
-			data->stop = TRUE;
-			pthread_mutex_unlock(&data->speek);
-			return (TRUE);
-		}
-		pthread_mutex_unlock(&data->speek);
-	}
+	wait_end(data);
 	return (TRUE);
 }
 

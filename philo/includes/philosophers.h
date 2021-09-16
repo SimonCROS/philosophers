@@ -66,7 +66,6 @@ enum e_action
 	TAKE_FORK,
 };
 
-int			start(t_program_data *data);
 void		*worker(void *philo);
 
 /*** Utils ********************************************************************/
