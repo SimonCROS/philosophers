@@ -16,7 +16,7 @@ void	print_action(t_philosopher *this, char *message)
 {
 	long long	diff;
 
-	diff = this->program->current - this->program->start;
+	diff = get_time_millis() - this->program->start;
 	printf("%lld %d %s\n", diff, this->id, message);
 }
 
@@ -40,13 +40,13 @@ static int	action(t_philosopher *this, t_action action)
 	else if (action == EAT)
 	{
 		print_action(this, "is eating");
-		this->last_meal = this->program->current;
+		this->last_meal = get_time_millis();
 	}
 	pthread_mutex_unlock(&this->program->speek);
 	return (TRUE);
 }
 
-void	custom_usleep(long long microseconds)
+static void	custom_usleep(long long microseconds)
 {
 	long long	i;
 	long long	start;

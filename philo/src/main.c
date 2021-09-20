@@ -34,17 +34,18 @@ static int	check_stop(t_program_data *data)
 {
 	int				i;
 	int				finished;
+	long long		current;
 	t_philosopher	*philosopher;
 
 	i = 0;
 	finished = data->stop_after != -1;
-	data->current = get_time_millis();
+	current = get_time_millis();
 	while (i < data->nb_philos && !data->stop)
 	{
 		philosopher = &data->philosophers[i];
 		if (philosopher->eat_count < data->stop_after)
 			finished = 0;
-		if (data->current - philosopher->last_meal > data->time_to_die)
+		if (current - philosopher->last_meal > data->time_to_die)
 		{
 			data->stop = TRUE;
 			print_action(philosopher, "died");
@@ -80,7 +81,6 @@ static int	start(t_program_data *data)
 
 	data->stop = FALSE;
 	data->start = get_time_millis();
-	data->current = data->start;
 	init_philosophers(data);
 	i = 0;
 	while (i < data->nb_philos)
