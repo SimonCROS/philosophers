@@ -12,19 +12,11 @@
 
 #include "philosophers.h"
 
-int	quit_philo(t_program_data *data, int destroy_mutex)
+static void	free_philo(t_program_data *data)
 {
-	int	i;
-
-	if (destroy_mutex)
-	{
-		i = 0;
-		pthread_mutex_destroy(&data->speek);
-		sem_unlink("forks");
-	}
+	sem_unlink("speek");
+	sem_unlink("forks");
 	free(data->philosophers);
-	data->philosophers = NULL;
-	return (EXIT_SUCCESS);
 }
 
 int	show_help(void)
@@ -34,9 +26,15 @@ int	show_help(void)
 	return (EXIT_FAILURE);
 }
 
-int	show_error(t_program_data *data, int destroy_mutex)
+int	show_error(t_program_data *data)
 {
-	quit_philo(data, destroy_mutex);
+	free_philo(data);
 	ft_putendl_fd("\033[31mAn internal error occurred.\033[0m", 2);
 	return (EXIT_FAILURE);
+}
+
+int	quit_philo(t_program_data *data)
+{
+	free_philo(data);
+	return (EXIT_SUCCESS);
 }

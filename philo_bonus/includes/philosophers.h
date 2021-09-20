@@ -43,7 +43,7 @@ struct s_program_data
 	int				stop;
 	long long		start;
 	long long		current;
-	pthread_mutex_t	speek;
+	sem_t			*speek;
 	sem_t			*forks;
 	t_philosopher	*philosophers;
 };
@@ -79,8 +79,8 @@ void		print_action(t_philosopher *this, char *message);
 
 /*** Exit *********************************************************************/
 
-int			quit_philo(t_program_data *data, int destroy_mutex);
 int			show_help(void);
-int			show_error(t_program_data *data, int destroy_mutex);
+int			show_error(t_program_data *data);
+int			quit_philo(t_program_data *data);
 
 #endif

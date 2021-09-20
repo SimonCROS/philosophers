@@ -51,9 +51,7 @@ static int	check_stop(t_program_data *data)
 		i++;
 	}
 	if (finished)
-	{
 		return (TRUE);
-	}
 	return (FALSE);
 }
 
@@ -61,13 +59,13 @@ static void	wait_end(t_program_data *data)
 {
 	while (1)
 	{
-		pthread_mutex_lock(&data->speek);
+		sem_wait(data->speek);
 		if (check_stop(data))
 		{
 			data->stop = TRUE;
 			break ;
 		}
-		pthread_mutex_unlock(&data->speek);
+		sem_post(data->speek);
 	}
 }
 
@@ -86,9 +84,9 @@ static int	start(t_program_data *data)
 		philosopher = &data->philosophers[i];
 		if (pthread_create(&philosopher->thread, NULL, worker, philosopher))
 		{
-			pthread_mutex_lock(&data->speek);
+			sem_wait(data->speek);
 			data->stop = TRUE;
-			pthread_mutex_unlock(&data->speek);
+			sem_post(data->speek);
 			return (FALSE);
 		}
 		else
@@ -115,14 +113,12 @@ int	main(int argc, char *argv[])
 	if (data.nb_philos == 0)
 		return (EXIT_SUCCESS);
 	data.philosophers = ft_calloc(data.nb_philos, sizeof(t_philosopher));
-
 	sem_unlink("forks");
+	sem_unlink("speek");
 	data.forks = sem_open("forks", O_CREAT | O_EXCL, 0644, data.nb_philos);
-	
-	if (data.forks == SEM_FAILED || !data.philosophers)
-		return (show_error(&data, FALSE));
-	pthread_mutex_init(&data.speek, NULL);
-	if (!start(&data))
-		return (show_error(&data, TRUE));
-	return (quit_philo(&data, TRUE));
+	data.speek = sem_open("speek", O_CREAT | O_EXCL, 0644, 1);
+	if (data.forks == SEM_FAILED || data.speek == SEM_FAILED
+		|| !data.philosophers || !start(&data))
+		return (show_error(&data));
+	return (quit_philo(&data));
 }
