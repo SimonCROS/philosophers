@@ -68,14 +68,14 @@ void	*worker(void *data)
 		custom_usleep(philo->program->time_to_eat * 1000);
 	while (!stop)
 	{
-		pthread_mutex_lock(philo->left_fork);
+		sem_wait(philo->program->forks);
 		stop = !action(philo, TAKE_FORK);
-		pthread_mutex_lock(philo->right_fork);
+		sem_wait(philo->program->forks);
 		stop = !action(philo, TAKE_FORK);
 		stop = !action(philo, EAT);
 		custom_usleep(philo->program->time_to_eat * 1000);
-		pthread_mutex_unlock(philo->left_fork);
-		pthread_mutex_unlock(philo->right_fork);
+		sem_post(philo->program->forks);
+		sem_post(philo->program->forks);
 		stop = !action(philo, SLEEP);
 		custom_usleep(philo->program->time_to_sleep * 1000);
 		stop = !action(philo, THINK);

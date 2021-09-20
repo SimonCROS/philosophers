@@ -20,10 +20,8 @@ int	quit_philo(t_program_data *data, int destroy_mutex)
 	{
 		i = 0;
 		pthread_mutex_destroy(&data->speek);
-		sem_destroy(&data->forks);
+		sem_unlink("forks");
 	}
-	free(data->forks);
-	data->forks = NULL;
 	free(data->philosophers);
 	data->philosophers = NULL;
 	return (EXIT_SUCCESS);

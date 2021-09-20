@@ -24,9 +24,7 @@ int	quit_philo(t_program_data *data, int destroy_mutex)
 			pthread_mutex_destroy(&data->forks[i++]);
 	}
 	free(data->forks);
-	data->forks = NULL;
 	free(data->philosophers);
-	data->philosophers = NULL;
 	return (EXIT_SUCCESS);
 }
 

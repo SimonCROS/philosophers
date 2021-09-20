@@ -24,9 +24,7 @@ static void	init_philosophers(t_program_data *data)
 		philosopher->id = i + 1;
 		philosopher->program = data;
 		philosopher->last_meal = data->start;
-		philosopher->left_fork = &data->forks[i];
 		i++;
-		philosopher->right_fork = &data->forks[i % data->nb_philos];
 	}
 }
 
@@ -117,10 +115,13 @@ int	main(int argc, char *argv[])
 	if (data.nb_philos == 0)
 		return (EXIT_SUCCESS);
 	data.philosophers = ft_calloc(data.nb_philos, sizeof(t_philosopher));
-	if (!data.forks || !data.philosophers)
+
+	sem_unlink("forks");
+	data.forks = sem_open("forks", O_CREAT | O_EXCL, 0644, data.nb_philos);
+	
+	if (data.forks == SEM_FAILED || !data.philosophers)
 		return (show_error(&data, FALSE));
 	pthread_mutex_init(&data.speek, NULL);
-	sem_init(&data.forks, 0, data.nb_philos);
 	if (!start(&data))
 		return (show_error(&data, TRUE));
 	return (quit_philo(&data, TRUE));

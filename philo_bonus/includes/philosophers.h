@@ -44,7 +44,7 @@ struct s_program_data
 	long long		start;
 	long long		current;
 	pthread_mutex_t	speek;
-	sem_t			forks;
+	sem_t			*forks;
 	t_philosopher	*philosophers;
 };
 
@@ -52,8 +52,6 @@ struct s_philosopher
 {
 	int				id;
 	t_program_data	*program;
-	pthread_mutex_t	*left_fork;
-	pthread_mutex_t	*right_fork;
 	long long		last_meal;
 	int				eat_count;
 	pthread_t		thread;
