@@ -14,9 +14,7 @@
 
 static void	free_philo(t_program_data *data)
 {
-	sem_unlink("speek");
-	sem_unlink("forks");
-	free(data->philosophers);
+	free(data->childs);
 }
 
 int	show_help(void)

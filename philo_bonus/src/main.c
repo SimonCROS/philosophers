@@ -10,91 +10,53 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <signal.h>
+
 #include "philosophers.h"
 
-static void	init_philosophers(t_program_data *data)
+static void	*meal_monitor(void *arg)
 {
+	t_program_data	*data;
 	int				i;
-	t_philosopher	*philosopher;
 
-	i = 0;
-	while (i < data->nb_philos)
-	{
-		philosopher = &data->philosophers[i];
-		philosopher->id = i + 1;
-		philosopher->program = data;
-		philosopher->last_meal = data->start;
-		i++;
-	}
-}
-
-static int	check_stop(t_program_data *data)
-{
-	int				i;
-	int				finished;
-	t_philosopher	*philosopher;
-
-	i = 0;
-	finished = data->stop_after != -1;
-	data->current = get_time_millis();
-	while (i < data->nb_philos && !data->stop)
-	{
-		philosopher = &data->philosophers[i];
-		if (philosopher->eat_count < data->stop_after)
-			finished = 0;
-		if (data->current - philosopher->last_meal > data->time_to_die)
-		{
-			data->stop = TRUE;
-			print_action(philosopher, "died");
-			return (TRUE);
-		}
-		i++;
-	}
-	if (finished)
-		return (TRUE);
-	return (FALSE);
+	data = (t_program_data *)arg;
+	i = data->nb_philos;
+	while (i--)
+		sem_wait(data->meals);
+	sem_post(data->finish);
+	return (NULL);
 }
 
 static void	wait_end(t_program_data *data)
 {
-	while (1)
-	{
-		sem_wait(data->speek);
-		if (check_stop(data))
-		{
-			data->stop = TRUE;
-			break ;
-		}
-		sem_post(data->speek);
-	}
+	int			i;
+	pthread_t	thread;
+
+	pthread_create(&thread, NULL, meal_monitor, data);
+	sem_wait(data->finish);
+	i = data->nb_philos;
+	while (i--)
+		kill(data->childs[i], SIGKILL);
 }
 
-static int	start(t_program_data *data)
+static void	start(t_program_data *data)
 {
-	int				i;
-	t_philosopher	*philosopher;
+	unsigned int	i;
+	int				child;
 
-	data->stop = FALSE;
 	data->start = get_time_millis();
-	data->current = data->start;
-	init_philosophers(data);
 	i = 0;
 	while (i < data->nb_philos)
 	{
-		philosopher = &data->philosophers[i];
-		if (pthread_create(&philosopher->thread, NULL, worker, philosopher))
-		{
-			sem_wait(data->speek);
-			data->stop = TRUE;
-			sem_post(data->speek);
-			return (FALSE);
-		}
-		else
-			pthread_detach(philosopher->thread);
+		child = fork();
+		if (child == -1)
+			quit_philo(data);
+		else if (child == 0)
+			worker((t_philosopher){i + 1, data->start, data}, data);
+		data->childs[i] = child;
 		i++;
 	}
 	wait_end(data);
-	return (TRUE);
 }
 
 int	main(int argc, char *argv[])
@@ -112,13 +74,18 @@ int	main(int argc, char *argv[])
 		return (show_help());
 	if (data.nb_philos == 0)
 		return (EXIT_SUCCESS);
-	data.philosophers = ft_calloc(data.nb_philos, sizeof(t_philosopher));
-	sem_unlink("forks");
-	sem_unlink("speek");
+	data.childs = malloc(sizeof(pid_t) * data.nb_philos);
 	data.forks = sem_open("forks", O_CREAT | O_EXCL, 0644, data.nb_philos);
 	data.speek = sem_open("speek", O_CREAT | O_EXCL, 0644, 1);
+	data.meals = sem_open("meals", O_CREAT | O_EXCL, 0644, 0);
+	data.finish = sem_open("finish", O_CREAT | O_EXCL, 0644, 0);
+	sem_unlink("forks");
+	sem_unlink("speek");
+	sem_unlink("meals");
+	sem_unlink("finish");
 	if (data.forks == SEM_FAILED || data.speek == SEM_FAILED
-		|| !data.philosophers || !start(&data))
+		|| data.meals == SEM_FAILED || data.finish == SEM_FAILED)
 		return (show_error(&data));
+	start(&data);
 	return (quit_philo(&data));
 }

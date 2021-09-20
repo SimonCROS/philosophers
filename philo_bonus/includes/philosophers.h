@@ -35,26 +35,26 @@ typedef enum e_action			t_action;
 
 struct s_program_data
 {
-	int				nb_philos;
-	int				time_to_die;
-	int				time_to_eat;
-	int				time_to_sleep;
-	int				stop_after;
-	int				stop;
-	long long		start;
-	long long		current;
-	sem_t			*speek;
-	sem_t			*forks;
-	t_philosopher	*philosophers;
+	int			nb_philos;
+	int			time_to_die;
+	int			time_to_eat;
+	int			time_to_sleep;
+	int			stop_after;
+	long long	start;
+	pid_t		*childs;
+	sem_t		*speek;
+	sem_t		*forks;
+	sem_t		*meals;
+	sem_t		*finish;
 };
 
 struct s_philosopher
 {
-	int				id;
-	t_program_data	*program;
+	unsigned int	id;
 	long long		last_meal;
+	t_program_data	*data;
+	sem_t			*check;
 	int				eat_count;
-	pthread_t		thread;
 };
 
 enum e_action
@@ -65,7 +65,7 @@ enum e_action
 	TAKE_FORK,
 };
 
-void		*worker(void *philo);
+void		*worker(t_philosopher philo, t_program_data *data);
 
 /*** Utils ********************************************************************/
 
@@ -75,7 +75,7 @@ void		*ft_calloc(size_t count, size_t size);
 void		ft_bzero(void *s, size_t n);
 long long	get_time_millis(void);
 
-void		print_action(t_philosopher *this, char *message);
+void		print_action(int id, t_program_data *data, char *message);
 
 /*** Exit *********************************************************************/
 
