@@ -54,9 +54,7 @@ static int	check_stop(t_program_data *data)
 		i++;
 	}
 	if (finished)
-	{
 		return (TRUE);
-	}
 	return (FALSE);
 }
 
