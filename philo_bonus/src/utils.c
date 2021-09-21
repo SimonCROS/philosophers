@@ -20,36 +20,24 @@ long long	get_time_millis(void)
 	return (time.tv_sec * 1000LL + time.tv_usec / 1000);
 }
 
-void	ft_bzero(void *s, size_t n)
+void	custom_usleep(long long microseconds)
 {
-	size_t	cur;
+	long long	i;
+	long long	start;
 
-	while (n)
-	{
-		if (n >= sizeof(long))
-		{
-			cur = sizeof(long);
-			*((long *)s) = 0;
-		}
-		else
-		{
-			cur = 1;
-			*((char *)s) = 0;
-		}
-		s += cur;
-		n -= cur;
-	}
+	i = 0;
+	start = get_time_millis();
+	while (get_time_millis() - start < microseconds / 1000)
+		usleep(100);
 }
 
-void	*ft_calloc(size_t count, size_t size)
+sem_t	*ft_sem_open(char *name, int size)
 {
-	void	*pointer;
+	sem_t	*sem;
 
-	pointer = malloc(count * size);
-	if (!pointer)
-		return (NULL);
-	ft_bzero(pointer, count * size);
-	return (pointer);
+	sem = sem_open(name, O_CREAT | O_EXCL, 0644, size);
+	sem_unlink(name);
+	return (sem);
 }
 
 int	pint(char *str, int *result, int min)

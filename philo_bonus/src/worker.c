@@ -44,17 +44,6 @@ static void	action(t_philosopher *this, t_program_data *data, t_action action)
 	sem_post(this->check);
 }
 
-static void	custom_usleep(long long microseconds)
-{
-	long long	i;
-	long long	start;
-
-	i = 0;
-	start = get_time_millis();
-	while (get_time_millis() - start < microseconds / 1000)
-		usleep(100);
-}
-
 static void	make_semid(unsigned int id, char result[9])
 {
 	int	i;

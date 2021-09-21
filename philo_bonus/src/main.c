@@ -41,8 +41,8 @@ static void	wait_end(t_program_data *data)
 
 static void	start(t_program_data *data)
 {
-	unsigned int	i;
-	int				child;
+	int	i;
+	int	child;
 
 	data->start = get_time_millis();
 	i = 0;
@@ -52,7 +52,7 @@ static void	start(t_program_data *data)
 		if (child == -1)
 			quit_philo(data);
 		else if (child == 0)
-			worker((t_philosopher){i + 1, data->start, data}, data);
+			worker((t_philosopher){i + 1, data->start, data, NULL, 0}, data);
 		data->childs[i] = child;
 		i++;
 	}
@@ -75,14 +75,10 @@ int	main(int argc, char *argv[])
 	if (data.nb_philos == 0)
 		return (EXIT_SUCCESS);
 	data.childs = malloc(sizeof(pid_t) * data.nb_philos);
-	data.forks = sem_open("forks", O_CREAT | O_EXCL, 0644, data.nb_philos);
-	data.speek = sem_open("speek", O_CREAT | O_EXCL, 0644, 1);
-	data.meals = sem_open("meals", O_CREAT | O_EXCL, 0644, 0);
-	data.finish = sem_open("finish", O_CREAT | O_EXCL, 0644, 0);
-	sem_unlink("forks");
-	sem_unlink("speek");
-	sem_unlink("meals");
-	sem_unlink("finish");
+	data.forks = ft_sem_open("forks", data.nb_philos);
+	data.speek = ft_sem_open("speek", 1);
+	data.meals = ft_sem_open("meals", 0);
+	data.finish = ft_sem_open("finish", 0);
 	if (data.forks == SEM_FAILED || data.speek == SEM_FAILED
 		|| data.meals == SEM_FAILED || data.finish == SEM_FAILED)
 		return (show_error(&data));

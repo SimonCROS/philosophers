@@ -69,10 +69,10 @@ void		*worker(t_philosopher philo, t_program_data *data);
 
 /*** Utils ********************************************************************/
 
+void		custom_usleep(long long microseconds);
 int			pint(char *str, int *result, int min);
+sem_t		*ft_sem_open(char *name, int size);
 ssize_t		ft_putendl_fd(char *s, int fd);
-void		*ft_calloc(size_t count, size_t size);
-void		ft_bzero(void *s, size_t n);
 long long	get_time_millis(void);
 
 void		print_action(int id, t_program_data *data, char *message);
