@@ -62,13 +62,13 @@ static void	wait_end(t_program_data *data)
 {
 	while (1)
 	{
-		pthread_mutex_lock(&data->speek);
+		pthread_mutex_lock(&data->speak);
 		if (check_stop(data))
 		{
 			data->stop = TRUE;
 			break ;
 		}
-		pthread_mutex_unlock(&data->speek);
+		pthread_mutex_unlock(&data->speak);
 	}
 }
 
@@ -86,9 +86,9 @@ static int	start(t_program_data *data)
 		philosopher = &data->philosophers[i];
 		if (pthread_create(&philosopher->thread, NULL, worker, philosopher))
 		{
-			pthread_mutex_lock(&data->speek);
+			pthread_mutex_lock(&data->speak);
 			data->stop = TRUE;
-			pthread_mutex_unlock(&data->speek);
+			pthread_mutex_unlock(&data->speak);
 			return (FALSE);
 		}
 		else
@@ -119,7 +119,7 @@ int	main(int argc, char *argv[])
 	data.philosophers = ft_calloc(data.nb_philos, sizeof(t_philosopher));
 	if (!data.forks || !data.philosophers)
 		return (show_error(&data, FALSE));
-	pthread_mutex_init(&data.speek, NULL);
+	pthread_mutex_init(&data.speak, NULL);
 	i = 0;
 	while (i < data.nb_philos)
 		pthread_mutex_init(&data.forks[i++], NULL);

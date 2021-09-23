@@ -10,6 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <signal.h>
+
 #include "philosophers.h"
 
 void	print_action(int id, t_program_data *data, char *message)
@@ -23,24 +25,27 @@ void	print_action(int id, t_program_data *data, char *message)
 static void	action(t_philosopher *this, t_program_data *data, t_action action)
 {
 	sem_wait(this->check);
-	sem_wait(data->speek);
-	if (action == TAKE_FORK)
-		print_action(this->id, data, "has taken a fork");
-	else if (action == SLEEP)
+	sem_wait(data->speak);
+	if (!this->died)
 	{
-		print_action(this->id, data, "is sleeping");
-		this->eat_count++;
-		if (this->eat_count == data->stop_after)
-			sem_post(data->meals);
-	}	
-	else if (action == THINK)
-		print_action(this->id, data, "is thinking");
-	else if (action == EAT)
-	{
-		print_action(this->id, data, "is eating");
-		this->last_meal = get_time_millis();
+		if (action == TAKE_FORK)
+			print_action(this->id, data, "has taken a fork");
+		else if (action == SLEEP)
+		{
+			print_action(this->id, data, "is sleeping");
+			this->eat_count++;
+			if (this->eat_count == data->stop_after)
+				sem_post(data->meals);
+		}	
+		else if (action == THINK)
+			print_action(this->id, data, "is thinking");
+		else if (action == EAT)
+		{
+			print_action(this->id, data, "is eating");
+			this->last_meal = get_time_millis();
+		}
 	}
-	sem_post(data->speek);
+	sem_post(data->speak);
 	sem_post(this->check);
 }
 
@@ -74,9 +79,10 @@ void	*monitor(void *arg)
 		sem_wait(philo->check);
 		if (get_time_millis() - philo->last_meal > data->time_to_die)
 		{
-			sem_wait(data->speek);
+			sem_wait(data->speak);
+			philo->died = 1;
 			print_action(philo->id, data, "died");
-			sem_post(data->speek);
+			sem_post(data->speak);
 			sem_post(philo->check);
 			sem_post(data->finish);
 			break ;

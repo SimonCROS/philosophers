@@ -22,10 +22,10 @@ void	print_action(t_philosopher *this, char *message)
 
 static int	action(t_philosopher *this, t_action action)
 {
-	pthread_mutex_lock(&this->program->speek);
+	pthread_mutex_lock(&this->program->speak);
 	if (this->program->stop)
 	{
-		pthread_mutex_unlock(&this->program->speek);
+		pthread_mutex_unlock(&this->program->speak);
 		return (FALSE);
 	}
 	if (action == TAKE_FORK)
@@ -42,7 +42,7 @@ static int	action(t_philosopher *this, t_action action)
 		print_action(this, "is eating");
 		this->last_meal = get_time_millis();
 	}
-	pthread_mutex_unlock(&this->program->speek);
+	pthread_mutex_unlock(&this->program->speak);
 	return (TRUE);
 }
 

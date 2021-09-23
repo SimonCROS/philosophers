@@ -42,7 +42,7 @@ struct s_program_data
 	int			stop_after;
 	long long	start;
 	pid_t		*childs;
-	sem_t		*speek;
+	sem_t		*speak;
 	sem_t		*forks;
 	sem_t		*meals;
 	sem_t		*finish;
@@ -55,6 +55,7 @@ struct s_philosopher
 	t_program_data	*data;
 	sem_t			*check;
 	int				eat_count;
+	int				died;
 };
 
 enum e_action

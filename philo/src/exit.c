@@ -19,7 +19,7 @@ int	quit_philo(t_program_data *data, int destroy_mutex)
 	if (destroy_mutex)
 	{
 		i = 0;
-		pthread_mutex_destroy(&data->speek);
+		pthread_mutex_destroy(&data->speak);
 		while (i < data->nb_philos)
 			pthread_mutex_destroy(&data->forks[i++]);
 	}

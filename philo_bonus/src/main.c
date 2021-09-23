@@ -52,7 +52,7 @@ static void	start(t_program_data *data)
 		if (child == -1)
 			quit_philo(data);
 		else if (child == 0)
-			worker((t_philosopher){i + 1, data->start, data, NULL, 0}, data);
+			worker((t_philosopher){i + 1, data->start, data, NULL, 0, 0}, data);
 		data->childs[i] = child;
 		i++;
 	}
@@ -76,10 +76,10 @@ int	main(int argc, char *argv[])
 		return (EXIT_SUCCESS);
 	data.childs = malloc(sizeof(pid_t) * data.nb_philos);
 	data.forks = ft_sem_open("forks", data.nb_philos);
-	data.speek = ft_sem_open("speek", 1);
+	data.speak = ft_sem_open("speek", 1);
 	data.meals = ft_sem_open("meals", 0);
 	data.finish = ft_sem_open("finish", 0);
-	if (data.forks == SEM_FAILED || data.speek == SEM_FAILED
+	if (data.forks == SEM_FAILED || data.speak == SEM_FAILED
 		|| data.meals == SEM_FAILED || data.finish == SEM_FAILED)
 		return (show_error(&data));
 	start(&data);
