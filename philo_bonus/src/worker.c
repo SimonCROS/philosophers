@@ -10,8 +10,6 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <signal.h>
-
 #include "philosophers.h"
 
 void	print_action(int id, t_program_data *data, char *message)
