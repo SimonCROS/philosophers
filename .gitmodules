@@ -1,0 +1,3 @@
+[submodule "philo/philosophers-visualizer"]
+	path = philo/philosophers-visualizer
+	url = https://github.com/SimonCROS/philosophers-visualizer
